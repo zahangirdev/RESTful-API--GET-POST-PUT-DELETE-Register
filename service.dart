@@ -1,15 +1,25 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
-class ApiService {
-  Future getRequestWithoutModel() async {
-    final producturl = Uri.parse("https://jsonplaceholder.typicode.com/users");
-    final response = await http.get(producturl);
-    // print(response.body);
-    return json.decode(response.body);
+class UploadApiImage {
+  Future<dynamic> uploadImage(Uint8List bytes, String fileName) async {
+    Uri url = Uri.parse("https://api.escuelajs.co/api/v1/files/upload");
+    var request = http.MultipartRequest("POST", url);
+    var myFile = http.MultipartFile(
+      "file",
+      http.ByteStream.fromBytes(bytes),
+      bytes.length,
+      filename: fileName,
+    );
+    request.files.add(myFile);
+    final respones = await request.send();
+    if (respones.statusCode == 201) {
+      var data = await respones.stream.bytesToString();
+      return jsonDecode(data);
+    } else {
+      return null;
+    }
   }
 }
-///////
-// to used postmen in your vscode first add the extension of postmen in your vs code then  signup your account 
-// then you can easily used. 
