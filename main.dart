@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'post_register.dart';
+import 'home_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'API Example',
-      home: PostLogin(),
+      home: HomeScreen(),
     );
   }
 }

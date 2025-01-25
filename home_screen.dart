@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_complate_e_commerce_app_provider/api_service.dart';
+import 'package:flutter_complate_e_commerce_app_provider/model.dart';
+import 'package:flutter_complate_e_commerce_app_provider/update_display.dart';
 
-import 'get_model.dart';
+import 'service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,71 +11,73 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+UpdateModel updateData = UpdateModel();
+
 class _HomeScreenState extends State<HomeScreen> {
-  List<CommentModel> commentModel = [];
-  getComments() {
-    GetApiService().getCommentsModel().then(
-      (value) {
-        setState(() {
-          commentModel = value!;
-        });
-      },
-    );
-  }
+  TextEditingController nameController = TextEditingController();
+  TextEditingController jobController = TextEditingController();
 
-  @override
-  void initState() {
-    getComments();
-    super.initState();
-  }
-
+  UpdateModel updateData = UpdateModel();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Api Calls'),
-        ),
-        body: ListView.builder(
-          shrinkWrap: true,
-          itemCount: commentModel.length,
-          itemBuilder: (context, index) {
-            final apidata = commentModel[index];
-            return Material(
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.blue[300],
-                    child: Text(
-                      apidata.id.toString(),
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.175,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          apidata.name.toString(),
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          apidata.email.toString(),
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          apidata.body.toString(),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
+      appBar: AppBar(
+        title: const Text("Update Api call"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: "Name",
+                ),
               ),
-            );
-          },
-        ));
+              TextFormField(
+                controller: jobController,
+                decoration: const InputDecoration(
+                  labelText: "Job",
+                ),
+              ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                  onPressed: () {
+                    MyApiService()
+                        .updateData(nameController.text.toString(),
+                            jobController.text.toString())
+                        .then((value) {
+                      setState(() {
+                        updateData = value!;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UpdateDisplay(
+                              updateModel: updateData,
+                              name: updateData.name.toString(),
+                              job: updateData.job.toString(),
+                              updatedAT: updateData.updatedAt.toString(),
+                            ),
+                          ),
+                        );
+                      });
+                    });
+                  },
+                  child: const Text(
+                    "Update",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white),
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
