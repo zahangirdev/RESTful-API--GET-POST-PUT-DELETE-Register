@@ -2,23 +2,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import 'model.dart';
-
-class MyApiService {
-  Future<UpdateModel?> updateData(String name, String job) async {
-    var url = Uri.parse("https://reqres.in/api/users/2");
-    var response = await http.put(url, body: {"name": name, "job": job});
-
-    try {
-      if (response.statusCode == 200) {
-        UpdateModel model = UpdateModel.fromJson(jsonDecode(response.body));
-        print(response.body);
-        print("Data Update Successflly");
-        return model;
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-    return null;
+class ApiService {
+  Future getRequestWithoutModel() async {
+    final producturl = Uri.parse("https://jsonplaceholder.typicode.com/users");
+    final response = await http.get(producturl);
+    // print(response.body);
+    return json.decode(response.body);
   }
 }
+///////
+// to used postmen in your vscode first add the extension of postmen in your vs code then  signup your account 
+// then you can easily used. 
