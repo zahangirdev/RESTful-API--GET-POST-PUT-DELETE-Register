@@ -1,0 +1,138 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+// ------------------ Model ------------------
+class Todo {
+  String title;
+  String description;
+
+  Todo({
+    required this.title,
+    required this.description,
+  });
+}
+
+// ------------------ Controller ------------------
+class TodoController extends GetxController {
+  var todos = <Todo>[].obs;
+
+  void addTodo(String title, String description) {
+    todos.add(Todo(title: title, description: description));
+  }
+
+  void updateTodo(int index, String title, String description) {
+    todos[index].title = title;
+    todos[index].description = description;
+    todos.refresh(); // Refresh UI
+  }
+
+  void deleteTodo(int index) {
+    todos.removeAt(index);
+  }
+}
+
+// ------------------ Main App ------------------
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Todo App',
+      home: TodoPage(),
+    );
+  }
+}
+
+class TodoPage extends StatelessWidget {
+  final TodoController controller = Get.put(TodoController());
+
+  final titleController = TextEditingController();
+  final descController = TextEditingController();
+
+  TodoPage({super.key});
+
+  void showTodoDialog({int? index}) {
+    if (index != null) {
+      titleController.text = controller.todos[index].title;
+      descController.text = controller.todos[index].description;
+    } else {
+      titleController.clear();
+      descController.clear();
+    }
+
+    Get.defaultDialog(
+      title: index == null ? "Add Todo" : "Edit Todo",
+      content: Column(
+        children: [
+          TextField(
+            controller: titleController,
+            decoration: const InputDecoration(labelText: "Title"),
+          ),
+          TextField(
+            controller: descController,
+            decoration: const InputDecoration(labelText: "Description"),
+          ),
+        ],
+      ),
+      confirm: ElevatedButton(
+        onPressed: () {
+          if (index == null) {
+            controller.addTodo(titleController.text, descController.text);
+          } else {
+            controller.updateTodo(index, titleController.text, descController.text);
+          }
+          Get.back();
+        },
+        child: Text(index == null ? "Add" : "Update"),
+      ),
+      cancel: TextButton(
+        onPressed: () => Get.back(),
+        child: const Text("Cancel"),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Todo App with GetX")),
+      body: Obx(
+        () => ListView.builder(
+          itemCount: controller.todos.length,
+          itemBuilder: (context, index) {
+            final todo = controller.todos[index];
+            return Card(
+              child: ListTile(
+                title: Text(todo.title),
+                subtitle: Text(todo.description),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () => showTodoDialog(index: index),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => controller.deleteTodo(index),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showTodoDialog(),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
